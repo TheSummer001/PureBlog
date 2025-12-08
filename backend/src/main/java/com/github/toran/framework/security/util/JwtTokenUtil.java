@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,19 +37,23 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 生成 Token
+     * 生成 Token（带角色信息）
      *
-     * @param userId 用户 ID
+     * @param userId   用户 ID
      * @param username 用户名
+     * @param roles    角色列表
      * @return JWT Token
      */
-    public String generateToken(Long userId, String username) {
+    public String generateTokenWithRoles(Long userId, String username, List<String> roles) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
+
+        log.info("生成 Token - userId: {}, username: {}, roles: {}", userId, username, roles);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("username", username)
+                .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSignKey())
@@ -57,9 +63,9 @@ public class JwtTokenUtil {
     /**
      * 生成 Token（带额外声明）
      *
-     * @param userId 用户 ID
+     * @param userId   用户 ID
      * @param username 用户名
-     * @param claims 额外声明
+     * @param claims   额外声明
      * @return JWT Token
      */
     public String generateToken(Long userId, String username, Map<String, Object> claims) {
@@ -96,6 +102,20 @@ public class JwtTokenUtil {
             return claims.get("username", String.class);
         }
         return null;
+    }
+
+    /**
+     * 从 Token 中获取角色列表
+     */
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        if (claims != null) {
+            List<String> roles = claims.get("roles", List.class);
+            log.debug("从 Token 解析角色: {}", roles);
+            return roles;
+        }
+        log.warn("无法从 Token 中解析 claims");
+        return new ArrayList<>();
     }
 
     /**
@@ -137,7 +157,7 @@ public class JwtTokenUtil {
             if (claims == null) {
                 return false;
             }
-            
+
             // 检查是否过期
             Date expiration = claims.getExpiration();
             return expiration != null && !expiration.before(new Date());
@@ -164,11 +184,11 @@ public class JwtTokenUtil {
             if (claims == null) {
                 return null;
             }
-            
+
             Long userId = Long.parseLong(claims.getSubject());
             String username = claims.get("username", String.class);
-            
-            return generateToken(userId, username);
+
+            return generateToken(userId, username, claims);
         } catch (Exception e) {
             log.error("刷新 Token 失败：{}", e.getMessage());
             return null;

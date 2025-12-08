@@ -2,6 +2,7 @@ package com.github.toran.module.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.toran.module.system.entity.SysConfig;
+import com.github.toran.module.system.vo.BlogConfigVO;
 
 /**
  * 系统配置服务接口
@@ -22,7 +23,7 @@ public interface ISysConfigService extends IService<SysConfig> {
     /**
      * 根据配置键获取配置值（带默认值）
      *
-     * @param configKey 配置键
+     * @param configKey    配置键
      * @param defaultValue 默认值
      * @return 配置值
      */
@@ -31,7 +32,7 @@ public interface ISysConfigService extends IService<SysConfig> {
     /**
      * 保存或更新配置
      *
-     * @param configKey 配置键
+     * @param configKey   配置键
      * @param configValue 配置值
      * @param description 配置描述
      * @param configGroup 配置分组
@@ -51,4 +52,11 @@ public interface ISysConfigService extends IService<SysConfig> {
      * 刷新配置缓存
      */
     void refreshCache();
+
+    /**
+     * 获取博客公开配置（Giscus + 站点信息）
+     *
+     * @return 博客配置
+     */
+    BlogConfigVO getBlogConfig();
 }

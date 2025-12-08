@@ -94,9 +94,9 @@ CREATE TABLE `sys_config` (
 -- 初始化数据
 -- ====================================================
 
--- 插入超级管理员（密码：admin123，使用 BCrypt 加密）
+-- 插入超级管理员（密码：admin，使用 BCrypt 加密）
 INSERT INTO `sys_user` (`id`, `username`, `password`, `nickname`, `email`, `status`, `remark`) 
-VALUES (1, 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '超级管理员', 'admin@example.com', 1, '系统默认超级管理员');
+VALUES (1, 'admin', '$2a$10$.WL3cftKEtAK.gyf5FJ41eQH5K6gG7QGvgXx6wS/ynKyKZLEvZuaW', '超级管理员', 'admin@example.com', 1, '系统默认超级管理员');
 
 -- 插入角色
 INSERT INTO `sys_role` (`id`, `role_name`, `role_key`, `sort`, `status`, `remark`) 
@@ -113,4 +113,12 @@ INSERT INTO `sys_config` (`id`, `config_key`, `config_value`, `description`, `co
 VALUES 
 (1, 'oss.storage.type', 'local', '文件存储类型（local/oss/minio）', 'oss'),
 (2, 'oss.local.path', 'D:/upload/', '本地存储路径', 'oss'),
-(3, 'oss.local.url.prefix', 'http://localhost:8080/files/', '本地存储访问 URL 前缀', 'oss');
+(3, 'oss.local.url.prefix', 'http://localhost:8080/files/', '本地存储访问 URL 前缀', 'oss'),
+(4, 'giscus.repo', '', 'Giscus GitHub 仓库（格式：owner/repo）', 'giscus'),
+(5, 'giscus.repo_id', '', 'Giscus 仓库 ID', 'giscus'),
+(6, 'giscus.category', 'Announcements', 'Giscus 分类名称', 'giscus'),
+(7, 'giscus.category_id', '', 'Giscus 分类 ID', 'giscus'),
+(8, 'giscus.mapping', 'pathname', 'Giscus 映射方式（pathname/url/title）', 'giscus'),
+(9, 'site.name', '个人博客', '站点名称', 'site'),
+(10, 'site.icp', '', 'ICP 备案号', 'site'),
+(11, 'site.description', '分享技术与生活', '站点描述', 'site');

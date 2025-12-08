@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * JWT 认证过滤器
@@ -45,6 +46,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             // 从 Token 中获取用户信息
             Long userId = jwtTokenUtil.getUserIdFromToken(token);
             String username = jwtTokenUtil.getUsernameFromToken(token);
+            List<String> roles = jwtTokenUtil.getRolesFromToken(token);
 
             if (userId != null && username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // 构建登录用户信息
@@ -52,7 +54,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 loginUser.setUserId(userId);
                 loginUser.setUsername(username);
                 loginUser.setStatus(1);
-                loginUser.setRoles(new ArrayList<>());
+                loginUser.setRoles(roles != null ? roles : new ArrayList<>());
                 loginUser.setPermissions(new ArrayList<>());
 
                 // 创建认证对象
@@ -63,7 +65,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 // 设置到 Security 上下文
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                log.debug("用户 {} 认证成功", username);
+                log.debug("用户 {} 认证成功，角色：{}", username, roles);
             }
         }
 

@@ -81,6 +81,11 @@
 
 		<!-- MyBatis-Plus -->
 		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>3.0.4</version>
+		</dependency>
+		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-boot-starter</artifactId>
 			<version>${mybatis-plus.version}</version>
@@ -117,11 +122,10 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
-		<!-- Redis (可选,用于缓存配置) -->
+		<!-- Redis (用于缓存配置和文章阅读量) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
-			<optional>true</optional>
 		</dependency>
 
 		<!-- Configuration Processor -->

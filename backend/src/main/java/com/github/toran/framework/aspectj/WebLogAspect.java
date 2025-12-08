@@ -2,6 +2,8 @@ package com.github.toran.framework.aspectj;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.toran.common.core.domain.Result;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,6 +13,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Collection;
 
 /**
  * 请求日志切面
@@ -36,39 +40,81 @@ public class WebLogAspect {
     @Around("webLog()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
-        
+
         // 获取 Request
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
             return joinPoint.proceed();
         }
-        
+
         HttpServletRequest request = attributes.getRequest();
-        
+
         // 记录请求信息
         String url = request.getRequestURL().toString();
         String method = request.getMethod();
         String ip = getIpAddress(request);
         String classMethod = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
-        
+
         log.info("========== Request Start ==========");
         log.info("URL            : {}", url);
         log.info("HTTP Method    : {}", method);
         log.info("IP             : {}", ip);
         log.info("Class Method   : {}", classMethod);
-        log.info("Request Args   : {}", JSONUtil.toJsonStr(args));
-        
+        log.info("Request Args   : {}", truncateLog(JSONUtil.toJsonStr(args)));
+
         // 执行方法
         Object result = joinPoint.proceed();
-        
+
         // 记录响应信息
         long duration = System.currentTimeMillis() - startTime;
-        log.info("Response       : {}", JSONUtil.toJsonStr(result));
+        log.info("Response       : {}", truncateLog(formatResponse(result)));
         log.info("Time-Consuming : {} ms", duration);
         log.info("========== Request End ==========");
-        
+
         return result;
+    }
+
+    /**
+     * 格式化响应日志
+     * 优化日志输出，防止日志过大
+     */
+    private String formatResponse(Object result) {
+        if (result instanceof Result) {
+            Result<?> res = (Result<?>) result;
+            Object data = res.getData();
+
+            // 如果是列表或分页数据，只打印大小
+            if (data instanceof Collection) {
+                int size = ((Collection<?>) data).size();
+                return String.format("Result(code=%s, message=%s, data=List<Size=%d>)",
+                        res.getCode(), res.getMessage(), size);
+            } else if (data instanceof Page) {
+                long total = ((Page<?>) data).getTotal();
+                long size = ((Page<?>) data).getSize();
+                return String.format("Result(code=%s, message=%s, data=Page<total=%d, size=%d>)",
+                        res.getCode(), res.getMessage(), total, size);
+            }
+        }
+
+        // 其他情况正常序列化
+        return JSONUtil.toJsonStr(result);
+    }
+
+    /**
+     * 截断过长的日志内容
+     */
+    private String truncateLog(String logContent) {
+        if (logContent == null) {
+            return null;
+        }
+
+        // 最大日志长度（字符）
+        int maxLength = 1000;
+        if (logContent.length() > maxLength) {
+            return logContent.substring(0, maxLength) + "...(truncated)";
+        }
+        return logContent;
     }
 
     /**
@@ -84,12 +130,12 @@ public class WebLogAspect {
             }
             return ip;
         }
-        
+
         ip = request.getHeader("X-Real-IP");
         if (StrUtil.isNotBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
             return ip;
         }
-        
+
         return request.getRemoteAddr();
     }
 }
