@@ -90,11 +90,20 @@ public class DashboardController {
         List<Map<String, Object>> dateCountList = articleMapper.selectPublishCount(startDateTime, endDateTime);
 
         // 转换为 Map<LocalDate, Long> 便于查找
+        // 转换为 Map<LocalDate, Long> 便于查找
         Map<LocalDate, Long> dateCountMap = dateCountList.stream()
                 .collect(Collectors.toMap(
-                        item -> LocalDate.parse((String) item.get("date")),
+                        item -> {
+                            // 【修改点】这里处理类型转换
+                            Object dateObj = item.get("date");
+                            if (dateObj instanceof java.sql.Date) {
+                                return ((java.sql.Date) dateObj).toLocalDate();
+                            } else {
+                                // 兼容性处理：万一驱动返回的是 String
+                                return LocalDate.parse(dateObj.toString());
+                            }
+                        },
                         item -> (Long) item.get("count")));
-
         // 构建完整的日期列表（包括没有发布文章的日期）
         List<DashboardVO.PublishRecord> records = new ArrayList<>();
         LocalDate currentDate = startDate;

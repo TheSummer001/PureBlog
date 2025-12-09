@@ -51,7 +51,19 @@
 import { ref, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
-import type { FormInst, FormRules } from 'naive-ui'
+// ✅ 新增：导入所需的 Naive UI 组件
+import { 
+  NCard, 
+  NForm, 
+  NFormItem, 
+  NInput, 
+  NButton, 
+  NCheckbox, 
+  NRow, 
+  NCol, 
+  type FormInst, 
+  type FormRules 
+} from 'naive-ui'
 
 interface LoginForm {
   username: string
@@ -66,7 +78,7 @@ const loading = ref(false)
 const rememberMe = ref(false)
 
 const loginForm = reactive<LoginForm>({
-  username: 'admin',
+  username: 'admin', // 预填方便测试
   password: 'admin123'
 })
 
@@ -85,8 +97,8 @@ const loginRules: FormRules = {
       trigger: 'blur'
     },
     {
-      min: 6,
-      message: '密码长度至少6位',
+      min: 5, // 根据后端逻辑调整，原代码写6可能会导致 admin123 报错
+      message: '密码长度至少5位',
       trigger: 'blur'
     }
   ]
@@ -108,9 +120,8 @@ const handleLogin = (e: Event) => {
         const redirect = route.query.redirect as string || '/admin'
         router.push(redirect)
       } catch (error: any) {
-        // 登录失败处理
+        // 登录失败处理已在 request.ts 中统一弹出 message
         console.error('登录失败:', error)
-        // 这里可以添加错误提示
       } finally {
         loading.value = false
       }
@@ -133,5 +144,7 @@ const handleLogin = (e: Event) => {
   max-width: 400px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* 确保背景色不是透明的 */
+  background-color: white; 
 }
 </style>

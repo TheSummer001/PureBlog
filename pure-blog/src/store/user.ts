@@ -46,17 +46,23 @@ export const useUserStore = defineStore('user', () => {
     }
 
     // 登录
+    // 登录
     const login = async (loginData: LoginRequest): Promise<LoginResponse> => {
-        const response = await request.post<LoginResponse>('/auth/login', loginData)
-        setToken(response.data.token)
-        return response.data
+        // request.post 返回的直接就是 LoginResponse 类型的数据
+        const res = await request.post<LoginResponse>('/auth/login', loginData)
+
+        // 直接从 res 中获取 token
+        setToken(res.token)
+
+        return res
     }
 
     // 获取用户信息
+    // 获取用户信息
     const getUserInfo = async (): Promise<UserInfo> => {
-        const response = await request.get<UserInfo>('/auth/info')
-        setUserInfo(response.data)
-        return response.data
+        const res = await request.get<UserInfo>('/auth/info')
+        setUserInfo(res) // 直接使用 res，不要 res.data
+        return res
     }
 
     // 登出
