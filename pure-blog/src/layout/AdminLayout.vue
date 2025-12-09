@@ -2,6 +2,7 @@
   <n-layout has-sider class="admin-layout">
     <!-- 侧边栏 -->
     <n-layout-sider
+      class="sidebar"
       bordered
       collapse-mode="width"
       :collapsed-width="64"
@@ -11,8 +12,8 @@
       @expand="collapsed = false"
     >
       <div class="logo">
-        <h2 v-if="!collapsed">Admin Panel</h2>
-        <h2 v-else>AP</h2>
+        <h2 v-if="!collapsed" class="logo-text">Blog Admin</h2>
+        <h2 v-else class="logo-text-collapsed">BA</h2>
       </div>
       <n-menu
         :collapsed="collapsed"
@@ -21,14 +22,15 @@
         :options="menuOptions"
         :value="activeKey"
         @update:value="handleMenuSelect"
+        class="menu"
       />
     </n-layout-sider>
 
     <!-- 主内容区 -->
     <n-layout>
       <!-- 头部 -->
-      <n-layout-header bordered>
-        <div class="header">
+      <n-layout-header bordered class="header">
+        <div class="header-content">
           <n-breadcrumb>
             <n-breadcrumb-item v-for="item in breadcrumbs" :key="item">
               {{ item }}
@@ -38,7 +40,7 @@
             <n-button 
               type="primary" 
               size="small" 
-              style="margin-right: 15px;"
+              class="write-btn"
               @click="handleWriteArticle"
             >
               <template #icon>
@@ -51,14 +53,13 @@
               写文章
             </n-button>
             <n-dropdown :options="userDropdownOptions" @select="handleUserAction">
-              <n-button quaternary>
-                {{ userStore.userInfo?.nickname || userStore.userInfo?.username || '未知用户' }}
+              <n-button quaternary circle class="avatar-btn">
                 <template #icon>
-                  <n-icon>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M12 2a5 5 0 1 0 5 5a5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3a3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"/>
-                    </svg>
-                  </n-icon>
+                  <img 
+                    :src="`https://api.dicebear.com/7.x/initials/svg?seed=${userStore.userInfo?.nickname || userStore.userInfo?.username || 'U'}`" 
+                    alt="Avatar"
+                    class="avatar"
+                  />
                 </template>
               </n-button>
             </n-dropdown>
@@ -94,10 +95,10 @@ const renderIcon = (icon: string) => {
   })
 }
 
-const DashboardIcon = '<path fill="currentColor" d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m1 2v14h14V5z"/><path fill="currentColor" d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m1 2v14h14V5z"/><path fill="currentColor" d="M5 5h4v4H5zm5 0h4v4h-4zm5 0h4v4h-4zm-10 5h4v4H5zm5 0h4v4h-4zm5 0h4v4h-4zm-10 5h4v4H5zm5 0h4v4h-4zm5 0h4v4h-4z"/>'
-const ArticleIcon = '<path fill="currentColor" d="M4 4h16v16H4zm2 2v12h12V6zm2 2h8v2H8zm0 4h8v2H8zm0 4h5v2H8z"/>'
-const CategoryIcon = '<path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87l6.91-1.01z"/>'
-const TagIcon = '<path fill="currentColor" d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58c.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41c0-.55-.23-1.06-.59-1.42M5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7"/>'
+const DashboardIcon = '<path fill="currentColor" d="M13 3L4 9l7 5l9-6l-7-5m0 2.3l5.4 3.8l-5.4 3.7L7.6 8.1zM4 19l7 5l9-6l-9-5l-7 6z"/>'
+const ArticleIcon = '<path fill="currentColor" d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/>'
+const CategoryIcon = '<path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87l6.91-1.01L12 2z"/>'
+const TagIcon = '<path fill="currentColor" d="M17.84 14.69l-2.53 2.54l-4.27-4.27l2.53-2.53l4.27 4.26m-2.12 2.13l-1.41 1.41l-4.27-4.27l1.41-1.41l4.27 4.27M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7z"/>'
 const SettingsIcon = '<path fill="currentColor" d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>'
 
 const collapsed = ref(false)
@@ -224,6 +225,11 @@ onMounted(async () => {
   height: 100vh;
 }
 
+.sidebar {
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
 .logo {
   height: 60px;
   display: flex;
@@ -232,27 +238,115 @@ onMounted(async () => {
   border-bottom: 1px solid #eee;
 }
 
-.logo h2 {
+.logo-text {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-text-collapsed {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.menu :deep(.n-menu-item) {
+  border-radius: 0.5rem;
+  margin: 0.25rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.menu :deep(.n-menu-item.n-menu-item--selected) {
+  background-color: rgba(79, 70, 229, 0.1); /* bg-primary/10 */
+  position: relative;
+}
+
+.menu :deep(.n-menu-item.n-menu-item--selected)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #4f46e5; /* primary purple */
+  border-radius: 0 4px 4px 0;
+}
+
+.menu :deep(.n-menu-item-content) {
+  padding: 0.75rem 1rem !important;
+}
+
+.menu :deep(.n-menu-item-content .n-menu-item-content__icon) {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.menu :deep(.n-menu-item-content .n-menu-item-content__text) {
+  font-weight: 500;
+}
+
+.menu :deep(.n-menu-item.n-menu-item--selected .n-menu-item-content__text) {
+  color: #4f46e5; /* primary purple */
 }
 
 .header {
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 60px;
-  padding: 0 20px;
+  padding: 0 1.5rem;
 }
 
-.user-actions {
-  display: flex;
-  align-items: center;
+.write-btn {
+  margin-right: 1rem;
+}
+
+.avatar-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .content {
-  padding: 20px;
+  padding: 1.5rem;
+  background-color: #f3f4f6; /* bg-gray-100 */
   height: calc(100% - 60px);
   overflow: auto;
+}
+
+/* 自定义滚动条样式 */
+.content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 3px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 </style>

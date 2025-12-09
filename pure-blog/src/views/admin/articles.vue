@@ -5,7 +5,7 @@
       <n-button type="primary" @click="handleCreate">新建文章</n-button>
     </div>
     
-    <n-card class="search-card">
+    <n-card class="search-card" :bordered="false">
       <n-form inline :model="searchForm" label-placement="left">
         <n-form-item label="标题">
           <n-input v-model:value="searchForm.title" placeholder="请输入标题" clearable />
@@ -34,15 +34,17 @@
       </n-form>
     </n-card>
     
-    <n-data-table
-      :columns="columns"
-      :data="articleList"
-      :loading="loading"
-      :pagination="pagination"
-      :bordered="false"
-      remote
-      @update:page="handlePageChange"
-    />
+    <n-card :bordered="false" class="table-card">
+      <n-data-table
+        :columns="columns"
+        :data="articleList"
+        :loading="loading"
+        :pagination="pagination"
+        :bordered="false"
+        remote
+        @update:page="handlePageChange"
+      />
+    </n-card>
   </div>
 </template>
 
@@ -55,7 +57,6 @@ import { getArticleList, deleteArticle } from '@/api/article'
 import { getCategoryList } from '@/api/article'
 import type { ArticleListVO, ArticleQueryDTO } from '@/types/article'
 import type { CategoryVO } from '@/types/category'
-import type { Page } from '@/types/page' // ✅ 修复：导入 Page 类型
 
 const router = useRouter()
 const message = useMessage()
@@ -79,7 +80,7 @@ const articleList = ref<ArticleListVO[]>([])
 const pagination = ref({
   page: 1,
   pageSize: 10,
-  itemCount: 0, // ✅ 修复：初始化 itemCount，解决 TS 报错
+  itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 30],
   onChange: (page: number) => {
@@ -103,19 +104,35 @@ const statusOptions = [
 
 // 表格列配置
 const columns: DataTableColumns<ArticleListVO> = [
-  { title: 'ID', key: 'id', width: 80 },
-  { title: '标题', key: 'title', ellipsis: true },
-  { title: '分类', key: 'categoryName', width: 120 },
+  { 
+    title: '标题', 
+    key: 'title', 
+    ellipsis: true,
+    minWidth: 200
+  },
+  { 
+    title: '分类', 
+    key: 'categoryName', 
+    width: 120,
+    render(row) {
+      return h('span', { class: 'category-tag' }, row.categoryName)
+    }
+  },
   {
     title: '标签',
     key: 'tags',
-    width: 150,
+    width: 180,
     render(row) {
       return row.tags.map(tag => 
         h(NTag, { 
-          type: 'success',
+          type: 'primary',
           size: 'small',
-          style: { marginRight: '4px' }
+          style: { 
+            marginRight: '4px',
+            backgroundColor: tag.color || '#e0e0e0',
+            borderColor: tag.color || '#e0e0e0',
+            color: '#fff'
+          }
         }, { default: () => tag.name })
       )
     }
@@ -125,14 +142,28 @@ const columns: DataTableColumns<ArticleListVO> = [
     key: 'status',
     width: 100,
     render(row) {
-      return h(NTag, { 
-        type: row.status === 1 ? 'success' : 'warning'
-      }, { 
-        default: () => row.status === 1 ? '已发布' : '草稿' 
-      })
+      const isPublished = row.status === 1
+      return h('div', { class: 'status-cell' }, [
+        h('span', { 
+          class: `status-dot ${isPublished ? 'published' : 'draft'}` 
+        }),
+        h('span', { class: 'status-text' }, isPublished ? '已发布' : '草稿')
+      ])
     }
   },
-  { title: '发布时间', key: 'publishTime', width: 160 },
+  { 
+    title: '发布时间', 
+    key: 'publishTime', 
+    width: 160 
+  },
+  { 
+    title: '阅读量', 
+    key: 'views', 
+    width: 100,
+    render(row) {
+      return h('span', { class: 'views-count' }, row.views)
+    }
+  },
   {
     title: '操作',
     key: 'actions',
@@ -140,16 +171,18 @@ const columns: DataTableColumns<ArticleListVO> = [
     render(row) {
       return [
         h(NButton, {
-            size: 'small',
-            type: 'primary',
-            style: { marginRight: '8px' },
-            onClick: () => handleEdit(row.id)
-          }, { default: () => '编辑' }),
+          size: 'small',
+          type: 'primary',
+          quaternary: true,
+          style: { marginRight: '8px' },
+          onClick: () => handleEdit(row.id)
+        }, { default: () => '编辑' }),
         h(NButton, {
-            size: 'small',
-            type: 'error',
-            onClick: () => handleDelete(row.id)
-          }, { default: () => '删除' })
+          size: 'small',
+          type: 'error',
+          quaternary: true,
+          onClick: () => handleDelete(row.id)
+        }, { default: () => '删除' })
       ]
     }
   }
@@ -159,7 +192,6 @@ const columns: DataTableColumns<ArticleListVO> = [
 const fetchArticleList = async () => {
   loading.value = true
   try {
-    // ✅ 修复：这里 await 的结果已经是 Page<ArticleListVO> 了，不需要再 .data
     const response = await getArticleList(searchForm.value)
     articleList.value = response.records
     pagination.value.page = response.current
@@ -176,7 +208,6 @@ const fetchArticleList = async () => {
 // 获取分类列表
 const fetchCategoryList = async () => {
   try {
-    // ✅ 修复：这里 await 的结果已经是 CategoryVO[]
     const response = await getCategoryList()
     categoryOptions.value = response.map(category => ({
       label: category.name,
@@ -221,17 +252,17 @@ const handleCreate = () => {
 const handleEdit = (id: string) => {
   router.push(`/admin/article/edit/${id}`)
 }
+
 // 删除文章
 const handleDelete = async (id: string) => {
   // 将字符串ID转换为数字，因为API需要数字ID
-  const numericId = parseInt(id, 10);
+  const numericId = parseInt(id, 10)
   if (isNaN(numericId)) {
-    message.error('无效的文章ID');
-    return;
+    message.error('无效的文章ID')
+    return
   }
   
   const confirm = await new Promise(resolve => {
-    // ✅ 修复：使用 window.$dialog (类型已在步骤1中定义)
     window.$dialog?.warning({
       title: '确认删除',
       content: '确定要删除这篇文章吗？此操作不可恢复。',
@@ -252,6 +283,7 @@ const handleDelete = async (id: string) => {
     }
   }
 }
+
 // 组件挂载时获取数据
 onMounted(() => {
   fetchArticleList()
@@ -271,11 +303,72 @@ onMounted(() => {
   margin-bottom: 20px;
 }
 
-.search-card {
-  margin-bottom: 20px;
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
 }
 
-h1 {
-  margin: 0;
+.search-card {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.n-data-table-th) {
+  background-color: #f9fafb;
+  font-weight: 600;
+  padding: 16px 12px;
+}
+
+:deep(.n-data-table-td) {
+  padding: 16px 12px;
+}
+
+:deep(.n-data-table-tbody) tr:hover {
+  background-color: #f9fafb;
+}
+
+.category-tag {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-dot.published {
+  background-color: #10b981;
+}
+
+.status-dot.draft {
+  background-color: #f59e0b;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+.views-count {
+  font-weight: 600;
+  color: #6b7280;
 }
 </style>

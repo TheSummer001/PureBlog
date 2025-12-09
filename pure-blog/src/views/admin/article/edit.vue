@@ -1,31 +1,77 @@
 <template>
   <div class="article-edit">
-    <!-- 工具栏 -->
-    <n-card class="toolbar-card">
-      <div class="toolbar">
-        <n-input 
-          v-model:value="articleForm.title" 
-          class="title-input" 
-          placeholder="请输入文章标题" 
-          size="large"
-        />
-        <n-button type="primary" @click="handlePublish" :loading="saving">发布</n-button>
-        <n-button @click="handleSaveDraft" :loading="saving" style="margin-left: 10px;">保存草稿</n-button>
-        <n-button @click="showSettingDrawer = true" style="margin-left: 10px;">设置</n-button>
+    <!-- 顶部工具栏 -->
+    <div class="editor-header">
+      <n-input 
+        v-model:value="articleForm.title" 
+        class="title-input" 
+        placeholder="请输入文章标题" 
+        size="large"
+      />
+      <div class="header-actions">
+        <n-button @click="handleSaveDraft" :loading="saving" class="draft-btn">保存草稿</n-button>
+        <n-button type="primary" @click="handlePublish" :loading="saving" class="publish-btn">发布</n-button>
       </div>
-    </n-card>
+    </div>
     
-    <!-- 编辑器 -->
-    <n-card class="editor-card">
+    <!-- 属性栏 -->
+    <div class="attribute-bar">
+      <div class="attribute-item">
+        <span class="attribute-label">分类</span>
+        <n-select 
+          v-model:value="articleForm.categoryId" 
+          :options="categoryOptions" 
+          placeholder="请选择分类"
+          filterable
+          size="small"
+          class="attribute-select"
+        />
+      </div>
+      
+      <div class="attribute-item">
+        <span class="attribute-label">标签</span>
+        <n-select
+          class="tag-selector"
+          v-model:value="articleForm.tagIds"
+          multiple
+          filterable
+          tag
+          placeholder="请选择或输入标签"
+          :options="tagOptions"
+          @create="handleCreateTag"
+          size="small"
+        >
+          <template #arrow>
+            <n-button text @click.stop="showTagManager = true" size="tiny">
+              管理标签
+            </n-button>
+          </template>
+        </n-select>
+      </div>
+      
+      <div class="attribute-item">
+        <n-button @click="showSettingDrawer = true" size="small" quaternary>
+          <template #icon>
+            <n-icon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/></svg>
+            </n-icon>
+          </template>
+          设置
+        </n-button>
+      </div>
+    </div>
+    
+    <!-- 编辑器主体 -->
+    <div class="editor-body">
       <MdEditor
         v-model="articleForm.content"
         style="height: 100%"
         @on-upload-img="handleUploadImg"
       />
-    </n-card>
+    </div>
     
     <!-- 设置抽屉 -->
-    <n-drawer v-model:show="showSettingDrawer" :width="300" placement="right">
+    <n-drawer v-model:show="showSettingDrawer" :width="350" placement="right">
       <n-drawer-content title="文章设置" closable>
         <div class="setting-content">
           <n-form>
@@ -40,34 +86,6 @@
             
             <n-form-item label="封面图片">
               <n-input v-model:value="articleForm.coverImg" placeholder="请输入封面图片URL" />
-            </n-form-item>
-            
-            <n-form-item label="文章分类">
-              <n-select 
-                v-model:value="articleForm.categoryId" 
-                :options="categoryOptions" 
-                placeholder="请选择分类"
-                filterable
-              />
-            </n-form-item>
-            
-            <n-form-item label="文章标签">
-              <n-select
-                class="tag-selector"
-                v-model:value="articleForm.tagIds"
-                multiple
-                filterable
-                tag
-                placeholder="请选择或输入标签"
-                :options="tagOptions"
-                @create="handleCreateTag"
-              >
-                <template #arrow>
-                  <n-button text @click.stop="showTagManager = true">
-                    管理标签
-                  </n-button>
-                </template>
-              </n-select>
             </n-form-item>
             
             <n-form-item label="是否置顶">
@@ -104,7 +122,7 @@ import { ref, onMounted, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { NButton, NCard, NInput, NSelect, NForm, NFormItem, NRadioGroup, NRadio, NSwitch, NDrawer, NDrawerContent, useMessage, NModal, NDataTable } from 'naive-ui'
+import { NButton, NInput, NSelect, NForm, NFormItem, NSwitch, NDrawer, NDrawerContent, useMessage, NModal, NDataTable, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { useAppStore } from '@/store/app'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -361,32 +379,91 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: #f9fafb;
 }
 
-.toolbar-card {
-  margin-bottom: 10px;
-}
-
-.toolbar {
+.editor-header {
+  padding: 20px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
 .title-input {
   flex: 1;
-  margin-right: 20px;
 }
 
-.editor-card {
+.title-input :deep(.n-input__input-el) {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.draft-btn {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.publish-btn {
+  min-width: 80px;
+}
+
+.attribute-bar {
+  padding: 12px 20px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.attribute-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attribute-label {
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.attribute-select {
+  min-width: 150px;
+}
+
+.tag-selector {
+  min-width: 200px;
+}
+
+.editor-body {
   flex: 1;
+  padding: 20px;
 }
 
 .setting-content {
   padding: 20px;
 }
 
-.tag-selector {
-  width: 100%;
+:deep(.md-editor) {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.md-editor-toolbar-wrapper) {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+:deep(.md-editor-preview-wrapper) {
+  padding: 20px;
 }
 </style>

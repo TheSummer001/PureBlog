@@ -70,12 +70,6 @@ const routes: RouteRecordRaw[] = [
                 meta: { title: '分类管理' }
             },
             {
-                path: 'tags',
-                name: 'Tags',
-                component: () => import('@/views/admin/tags.vue'),
-                meta: { title: '标签管理' }
-            },
-            {
                 path: 'settings',
                 name: 'Settings',
                 component: () => import('@/views/admin/settings.vue'),
