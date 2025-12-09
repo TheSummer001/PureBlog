@@ -11,6 +11,7 @@
         </nav>
         <div class="actions">
           <ThemeToggle />
+          <router-link to="/admin/article/edit" v-if="userStore.isLoggedIn()">写文章</router-link>
           <router-link to="/login" v-if="!userStore.isLoggedIn()">登录</router-link>
           <router-link to="/admin" v-else>后台管理</router-link>
         </div>
