@@ -8,6 +8,7 @@ import com.github.toran.module.content.entity.BlogTag;
 import com.github.toran.module.content.mapper.BlogArticleMapper;
 import com.github.toran.module.content.mapper.BlogCategoryMapper;
 import com.github.toran.module.content.mapper.BlogTagMapper;
+import com.github.toran.module.content.vo.ArticleDetailVO;
 import com.github.toran.module.content.vo.DashboardVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -134,5 +135,13 @@ public class DashboardController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Result<List<DashboardVO.PublishRecord>> getMonthPublishRecord() {
         return getPublishRecord(30);
+    }
+
+    @Operation(summary = "获取近期文章(映射为项目)")
+    @GetMapping("/recent-articles")
+    public Result<List<ArticleDetailVO>> getRecentArticles(@RequestParam(defaultValue = "6") int limit) {
+        // 获取最近6篇文章，映射到前端的"项目"卡片
+        List<ArticleDetailVO> recentArticles = articleMapper.selectRecentArticlesForDashboard(limit);
+        return Result.success(recentArticles);
     }
 }

@@ -2,6 +2,7 @@ package com.github.toran.module.content.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.toran.module.content.entity.BlogArticle;
+import com.github.toran.module.content.vo.ArticleDetailVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -52,4 +53,12 @@ public interface BlogArticleMapper extends BaseMapper<BlogArticle> {
             "GROUP BY DATE(publish_time)")
     List<Map<String, Object>> selectPublishCount(@Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
+
+    @Select("SELECT t1.id, t1.title, t1.summary, t1.cover, t1.create_time, t2.nickname as authorName, t2.avatar as authorAvatar " +
+            "FROM blog_article t1 " +
+            "LEFT JOIN sys_user t2 ON t1.user_id = t2.id " +
+            "WHERE t1.del_flag = 0 " +
+            "ORDER BY t1.create_time DESC " +
+            "LIMIT #{limit}")
+    List<ArticleDetailVO> selectRecentArticlesForDashboard(int limit);
 }
