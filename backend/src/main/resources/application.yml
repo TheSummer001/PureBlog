@@ -98,17 +98,6 @@ knife4j:
     language: zh-CN
     swagger-model-name: 实体类列表
 
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-  group-configs:
-    - group: personal-blog
-      paths-to-match: /api/**
-      packages-to-scan: com.github.toran.module
-
 # 日志配置
 logging:
   level:
