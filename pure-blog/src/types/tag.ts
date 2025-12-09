@@ -1,6 +1,6 @@
 // 标签 VO
 export interface TagVO {
-    id: number
+    id: string | number
     name: string
     color: string
     status: number

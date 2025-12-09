@@ -1,6 +1,6 @@
 // 分类 VO
 export interface CategoryVO {
-    id: number
+    id: string
     name: string
     description: string
     sort: number

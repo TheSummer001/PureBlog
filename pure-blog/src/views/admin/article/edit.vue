@@ -185,7 +185,7 @@ const fetchArticleDetail = async () => {
     
     // 填充表单数据
     articleForm.value = {
-      id: detail.id,
+      id: Number(detail.id), // 将字符串类型的id转换为数字
       title: detail.title,
       content: detail.content,
       summary: detail.summary,
@@ -207,7 +207,7 @@ const fetchCategoryList = async () => {
     const response: CategoryVO[] = await getCategoryList()
     categoryOptions.value = response.map((category: CategoryVO) => ({
       label: category.name,
-      value: category.id
+      value: Number(category.id) // 将字符串类型的id转换为数字
     }))
   } catch (error) {
     message.error('获取分类列表失败')
@@ -221,7 +221,7 @@ const fetchTagList = async () => {
     const response: TagVO[] = await getTagList()
     tagOptions.value = response.map((tag: TagVO) => ({
       label: tag.name,
-      value: tag.id
+      value: typeof tag.id === 'string' ? Number(tag.id) : tag.id // 处理string|number类型
     }))
   } catch (error) {
     message.error('获取标签列表失败')

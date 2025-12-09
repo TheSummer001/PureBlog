@@ -1,8 +1,3 @@
-# ====================================================
-# Personal Blog System - Application Configuration
-# ====================================================
-# Spring Boot 3.5.8 配置文件
-# ====================================================
 
 # 应用基础配置
 spring:
@@ -102,8 +97,8 @@ knife4j:
 logging:
   level:
     root: INFO
-    com.github.toran: INFO
-    com.baomidou.mybatisplus: INFO
+    com.github.toran: DEBUG
+    com.baomidou.mybatisplus: DEBUG
     # 保留 SQL 语句打印，但去除 Session 噪音
     com.github.toran.module.*.mapper: DEBUG
   pattern:

@@ -94,8 +94,7 @@ const pagination = ref({
 })
 
 // 分类选项
-const categoryOptions = ref<{ label: string; value: number }[]>([])
-
+const categoryOptions = ref<{ label: string; value: string }[]>([])
 // 状态选项
 const statusOptions = [
   { label: '草稿', value: 0 },
@@ -219,12 +218,18 @@ const handleCreate = () => {
 }
 
 // 编辑文章
-const handleEdit = (id: number) => {
+const handleEdit = (id: string) => {
   router.push(`/admin/article/edit/${id}`)
 }
-
 // 删除文章
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
+  // 将字符串ID转换为数字，因为API需要数字ID
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) {
+    message.error('无效的文章ID');
+    return;
+  }
+  
   const confirm = await new Promise(resolve => {
     // ✅ 修复：使用 window.$dialog (类型已在步骤1中定义)
     window.$dialog?.warning({
@@ -239,7 +244,7 @@ const handleDelete = async (id: number) => {
   
   if (confirm) {
     try {
-      await deleteArticle(id)
+      await deleteArticle(numericId)
       message.success('删除成功')
       fetchArticleList() // 重新加载列表
     } catch (error) {
@@ -247,7 +252,6 @@ const handleDelete = async (id: number) => {
     }
   }
 }
-
 // 组件挂载时获取数据
 onMounted(() => {
   fetchArticleList()

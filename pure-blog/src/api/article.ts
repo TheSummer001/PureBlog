@@ -60,7 +60,7 @@ export const getPublicArticleList = (query: ArticleQueryDTO) => {
 }
 
 // 获取公开文章详情
-export const getPublicArticleDetail = (id: number) => {
+export const getPublicArticleDetail = (id: number | string) => {
     return request.get<ArticleDetailVO>(`/public/article/${id}`)
 }
 

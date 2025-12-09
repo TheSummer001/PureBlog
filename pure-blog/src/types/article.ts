@@ -24,7 +24,7 @@ export interface ArticleSubmitDTO {
 
 // 文章列表 VO（不含 content 全文）
 export interface ArticleListVO {
-    id: number
+    id: string
     title: string
     summary: string
     coverImg: string
@@ -42,7 +42,7 @@ export interface ArticleListVO {
 
 // 文章详情 VO（包含 content 全文）
 export interface ArticleDetailVO {
-    id: number
+    id: string
     title: string
     summary: string
     content: string
@@ -82,6 +82,6 @@ export interface AuthorInfo {
 
 // 文章导航（上一篇/下一篇）
 export interface ArticleNavigation {
-    id: number
+    id: string
     title: string
 }
